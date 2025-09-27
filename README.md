@@ -22,22 +22,25 @@ No setup needed! Just click:
 ## 📘 What’s Inside
 
 1. **Dataset with a Faulty Record**  
-   A sample sales table with one row containing a **positive discount** (i.e., `discount > 0`).
+A small sales table with one row containing a positive discount (discount > 0) to simulate a semantic bug.
 
 2. **Branch Profiling**  
-   Columns added to simulate decision paths:
-   
-   - `branch_november` → month == November  
-   - `branch_high_value` → price > 250  
-   - `branch_item_A`     → item_id == 101  
+Assigns binary branch flags for each row to simulate program decision paths:
+- b_nov → month == November
+- b_high → price > 250
+- b_itemA → item_id == 101
 
 3. **NaturalFuzz Mutation**  
-   Applies semantic-aware mutations to ~30–70% of rows—from valid “donor” rows—while preserving the injected faulty record.
+Implements three core steps from the paper in simplified form:
+- Branch Profiling → Assign path vectors
+- Seed Selection → Keep rows adding new coverage
+- Interleaving Mutation → Combine rows column-wise to explore new paths
 
 4. **Evaluation Metrics**  
-   - ✅ **Coverage**: number of unique branch flag combinations  
-   - ✅ **Fault Detection**: presence of row(s) with `discount > 0`  
-   - ✅ **Naturalness**: fraction of realistic (schema-valid) values  
+Calculates:
+- ✅ Coverage: number of unique branch vector combinations
+- ✅ Fault Detection: rows with discount > 0 (semantic faults)
+- ✅ Naturalness: fraction of realistic (schema-valid) values
 
 5. **Baseline Comparison**  
    Compare NaturalFuzz with:
@@ -50,13 +53,21 @@ No setup needed! Just click:
 ## 📊 Example Output
 
 ```text
-=== Evaluation Metrics ===
+=== NaturalFuzz ===
+Coverage: 3
+Faults: 0
+Naturalness: 100.0%
 
-Tool         | Coverage | Faults | Naturalness
-----------------------------------------------
-NaturalFuzz  | 4        | 2      | 100.0%
-Jazzer       | 3        | 0      | 80.0%
-BigFuzz      | 4        | 1      | 0.0%
+Final Mutated Data:
++------+-------+-----+----------+--------+-------+-----+-------+
+|b_high|b_itemA|b_nov|      date|discount|item_id|price|sale_id|
++------+-------+-----+----------+--------+-------+-----+-------+
+|     1|      1|    1|2023-11-15|     -10|    101|  300|      1|
+|     1|      1|    1|2023-11-20|     -20|    101|  500|      2|
+|     0|      0|    0|2023-12-10|      -5|    103|  100|      3|
+|     1|      1|    0|2023-12-05|     -15|    101|  300|      5|
++------+-------+-----+----------+--------+-------+-----+-------+
+
 ```
 NaturalFuzz achieves max coverage, correctly detects the fault, and preserves full naturalness—demonstrating its effectiveness.
 
@@ -113,7 +124,7 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 ---
 
-## 🧪 How to Use It Locally/Ubuntu:
+## 🧪 How to Use It Locally/Ubuntu :
 
 ```bash
 # 1. Clone the repository
